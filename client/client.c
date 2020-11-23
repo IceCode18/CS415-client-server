@@ -9,13 +9,14 @@
 #include <arpa/inet.h> 
 #include <sys/socket.h> 
 
+#define BUFFER_SIZE 3000
  
 int main(int argc, char const *argv[]){ 
     // Initialize variables
     int sockfd, bytes_read; 
     struct sockaddr_in server_addr;
     short port;
-    char buffer[2000] = {0}; 
+    char buffer[BUFFER_SIZE] = {0}; 
 
     
     if(argc < 2){
@@ -51,12 +52,33 @@ int main(int argc, char const *argv[]){
         exit(0); 
     } 
 
-    sprintf(buffer, "I am sending this message to the server.");
-
-    write(sockfd, buffer, strlen(buffer));
-    bzero(&buffer, sizeof(buffer));
+    
     bytes_read = read(sockfd, buffer, sizeof(buffer));
     buffer[bytes_read] = 0;
-
-    printf("From the server: %s\n", buffer);
+    printf("Server: %s\n", buffer);
+    bzero(&buffer, sizeof(buffer));
+    
+    char filename[BUFFER_SIZE];
+    scanf("%s", filename);
+    
+    strcpy(buffer, filename);
+    write(sockfd, buffer, strlen(buffer));
+    bzero(&buffer, sizeof(buffer));
+    
 } 
+
+// char filename[100];
+
+//     printf( "Enter a value :");
+//     scanf("%s %d", filename, &i);
+//     printf( "\nYou entered: %s %d ", str, i);
+
+   
+    
+//     bytes_read = read(sockfd, buffer, sizeof(buffer));
+//     buffer[bytes_read] = 0;
+//     printf("From the server: %s\n", buffer);
+    
+//     sprintf(buffer, "I am sending this message to the server.");
+//     write(sockfd, buffer, strlen(buffer));
+//     bzero(&buffer, sizeof(buffer));

@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <netinet/in.h> 
 
+#define BUFFER_SIZE 3000
 
 void handle_request(int socketfd);
 
@@ -45,7 +46,7 @@ int main(int argc, char const *argv[]) {
         perror("Socket binding failed"); // Socket binding error
         exit(0); 
     } 
-    printf("Socket binding successful...");
+    printf("Socket binding successful...\n");
     
     
     // Set socket server to passive mode 
@@ -70,15 +71,32 @@ int main(int argc, char const *argv[]) {
 } 
 
 void handle_request(int socketfd){
-    char message[200];
-    char buffer[200];
-    sprintf(message, "Message from the Server");
-
+    char message[BUFFER_SIZE];
+    char filename[BUFFER_SIZE];
     int bytes_read = 0;
-
-    bytes_read = read(socketfd, buffer, 200);
-    buffer[bytes_read] = 0;
-    printf("From Client (%d): %s\n", bytes_read, buffer);
-
+    
+    sprintf(message, "Hello Client! What file do you want to receive?");
     write(socketfd, message, strlen(message));
+    
+    bytes_read = read(socketfd, filename, BUFFER_SIZE);
+    filename[bytes_read] = 0;
+    printf("From Client (%d): %s\n", bytes_read, filename);
+
+    
 }
+
+// void handle_request(int socketfd){
+//     char message[200];
+//     char buffer[200];
+    
+
+//     sprintf(message, "Hello Client! What file do you want to receive?");
+
+//     int bytes_read = 0;
+
+//     bytes_read = read(socketfd, buffer, 200);
+//     buffer[bytes_read] = 0;
+//     printf("From Client (%d): %s\n", bytes_read, buffer);
+
+//     write(socketfd, message, strlen(message));
+// }
