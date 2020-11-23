@@ -7,17 +7,26 @@
 #include <sys/socket.h> 
 #include <netinet/in.h> 
 
-#define PORT 8080 // Specify connection port
+//#define PORT 8080 // Specify connection port
 int main(int argc, char const *argv[]) 
 { 
+    
+    //int opt = 1; 
+    //int  = sizeof(address); 
+    // char buffer[1024] = {0}; 
+    // char *hello = "Hello from server"; 
+    
     // Initialize variables
     int server_socket, incoming_socket, valread, incoming_addrlen; 
     struct sockaddr_in server_addr, client_addr; 
-    int opt = 1; 
-    //int  = sizeof(address); 
-    char buffer[1024] = {0}; 
-    char *hello = "Hello from server"; 
-       
+    short port;
+    
+    if(argc < 2){
+        printf("Enter PORT number for connection\n");
+        exit(0);
+    }
+    port = (short)atoi(argv[1]);
+    
     // Create socket with a descriptor, specify connection type, set protocol to zero
     if ((server_socket = socket(AF_INET, SOCK_STREAM, 0)) == 0) 
     { 
