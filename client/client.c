@@ -2,45 +2,61 @@
 #include <stdio.h> 
 #include <unistd.h> 
 #include <string.h> 
+#include <stdlib.h>
 // Include libraries for socket programming, client side
-#include <sys/socket.h> 
+#include <netdb.h>
+#include <netinet/in.h>
 #include <arpa/inet.h> 
+#include <sys/socket.h> 
 
-#define PORT 8080 // Specify connection port
-   
-int main(int argc, char const *argv[]) 
-{ 
+ 
+int main(int argc, char const *argv[]){ 
     // Initialize variables
-    int sock = 0, valread; 
-    struct sockaddr_in serv_addr; 
-    char *hello = "Hello from client"; 
-    char buffer[1024] = {0}; 
+    int sockfd, bytes_read; 
+    struct sockaddr_in server_addr;
+    short port;
+    char buffer[2000] = {0}; 
 
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) // Create socket with a descriptor, specify connection type, set protocol to zero
-    { 
-        printf("\n Socket creation error \n"); // Socket creation error
-        return -1; 
+    
+    if(argc < 2){
+        printf("Enter PORT number for connection\n");
+        exit(0);
+    }
+    port = (short)atoi(argv[1]);
+    printf("Preparing client connection on Port: %d\n", port);
+    
+    // Create socket with a descriptor, specify connection type, set protocol to zero
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1){ 
+        perror("Socket creation error"); 
+        exit(0); 
     } 
-   
+    bzero(&server_addr, sizeof(server_addr));
+
+    
     // Assign necessary values to server socket address struct
-    serv_addr.sin_family = AF_INET; 
-    serv_addr.sin_port = htons(PORT); 
+    server_addr.sin_family = AF_INET; 
+    server_addr.sin_port = htons(port); 
        
+
     //Parse text type IP addresses to convert to binary form 
-    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)  
-    { 
-        printf("\nInvalid address/ Address not supported \n"); // Invalid address error
-        return -1; 
+    if(inet_pton(AF_INET, "127.0.0.1", &server_addr.sin_addr) <= 0) { 
+        perror("Invalid address, Address not supported"); 
+        exit(0);
     } 
+
+
     //Connect to remote server
-    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) 
-    { 
-        printf("\nConnection Failed \n"); 
-        return -1; 
+    if (connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) != 0){ 
+        perror("Connection failed"); 
+        exit(0); 
     } 
-    send(sock , hello , strlen(hello) , 0 ); // Send message
-    printf("Hello message sent\n"); 
-    valread = read( sock , buffer, 1024);  // Read
-    printf("%s\n",buffer ); 
-    return 0; 
+
+    sprintf(buffer, "I am sending this message to the server.");
+
+    write(sockfd, buffer, strlen(buffer));
+    bzero(&buffer, sizeof(buffer));
+    bytes_read = read(sockfd, buffer, sizeof(buffer));
+    buffer[bytes_read] = 0;
+
+    printf("From the server: %s\n", buffer);
 } 

@@ -9,11 +9,11 @@
 #include <netinet/in.h> 
 
 
+void handle_request(int socketfd);
+
 int main(int argc, char const *argv[]) { 
-    
-    
     // Initialize variables
-    int server_socket, incoming_socket, valread, incoming_addrlen; 
+    int server_socket, incoming_socket, incoming_addrlen; 
     struct sockaddr_in server_addr, client_addr; 
     short port;
     
@@ -45,7 +45,7 @@ int main(int argc, char const *argv[]) {
         perror("Socket binding failed"); // Socket binding error
         exit(0); 
     } 
-    print("Socket binding successful...")
+    printf("Socket binding successful...");
     
     
     // Set socket server to passive mode 
@@ -53,7 +53,7 @@ int main(int argc, char const *argv[]) {
         perror("Listening mode error");  
         exit(0); 
     }
-    incoming_addrlen = sizeof(client_addr)
+    incoming_addrlen = sizeof(client_addr);
     
     
     while(1){
@@ -63,12 +63,22 @@ int main(int argc, char const *argv[]) {
             exit(0); 
         }
         printf("New connection accepted\n");
+
+        handle_request(incoming_socket);
     }
     
-     
-    // valread = read( incoming_socket , buffer, 1024);  // Read
-    // printf("%s\n",buffer ); 
-    // send(incoming_socket , hello , strlen(hello) , 0 );  // Send message
-    // printf("Hello message sent\n"); 
-    // return 0; 
 } 
+
+void handle_request(int socketfd){
+    char message[200];
+    char buffer[200];
+    sprintf(message, "Message from the Server");
+
+    int bytes_read = 0;
+
+    bytes_read = read(socketfd, buffer, 200);
+    buffer[bytes_read] = 0;
+    printf("From Client (%d): %s\n", bytes_read, buffer);
+
+    write(socketfd, message, strlen(message));
+}
