@@ -62,23 +62,46 @@ int main(int argc, char const *argv[]){
     scanf("%s", filename);
     
     strcpy(buffer, filename);
+    strcat(buffer, "$");
     write(sockfd, buffer, strlen(buffer));
     bzero(&buffer, sizeof(buffer));
     
+    char payload_bucket[BUFFER_SIZE];
+    int payload_size;
+    char *flag;
+    int flagFound = 0;
+    int count = 0;
+    while(1){
+        if(count > BUFFER_SIZE ){
+            break;
+        }
+        count++;
+        //read
+        bytes_read = read(sockfd, buffer, sizeof(buffer));
+        buffer[bytes_read] = 0;
+        strncpy(payload_bucket, buffer, strlen(buffer));
+        bzero(&buffer, sizeof(buffer));
+        // check for flag and parse file content size
+        if(flagFound < 1){
+            flag = strchr(payload_bucket, '$');
+            if( flag != NULL){
+                int payload_size_header = strlen(payload_bucket) - strlen(flag);
+                char payload_size_buffer[BUFFER_SIZE/2];
+                for(int i = 0; i< payload_size_header; i++){
+                    payload_size_buffer[i] = payload_bucket[i];
+                }
+                payload_size = atoi(payload_size_buffer);
+                printf("File size: %d\n", payload_size);
+                flagFound++;
+            }
+        }
+        // Check if payload buffer size is equal to the file content size then print payload buffer
+        if(strlen(payload_bucket) >= payload_size){
+            printf("File content: %s\n", payload_bucket);
+            break;
+        }
+    }
+    printf("\n");
+    
+    
 } 
-
-// char filename[100];
-
-//     printf( "Enter a value :");
-//     scanf("%s %d", filename, &i);
-//     printf( "\nYou entered: %s %d ", str, i);
-
-   
-    
-//     bytes_read = read(sockfd, buffer, sizeof(buffer));
-//     buffer[bytes_read] = 0;
-//     printf("From the server: %s\n", buffer);
-    
-//     sprintf(buffer, "I am sending this message to the server.");
-//     write(sockfd, buffer, strlen(buffer));
-//     bzero(&buffer, sizeof(buffer));
